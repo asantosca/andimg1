@@ -3,15 +3,44 @@ package image.asantos.imagemanipulation2;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.support.v7.app.ActionBarActivity;
 
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
+
 import android.widget.ImageView;
 
-public class MainActivity extends ActionBarActivity {
-    Button b1, b2, b3;
+/*
+
+
+   BLACK       = 0xFF000000;
+   WHITE       = 0xFFFFFFFF;
+
+   DKGRAY      = 0xFF444444;
+   GRAY        = 0xFF888888;
+   LTGRAY      = 0xFFCCCCCC;
+
+   RED         = 0xFFFF0000;
+   GREEN       = 0xFF00FF00;
+   BLUE        = 0xFF0000FF;
+
+   YELLOW      = 0xFFFFFF00;
+   CYAN        = 0xFF00FFFF;
+   MAGENTA     = 0xFFFF00FF;
+
+   TRANSPARENT = 0;
+
+Bright = RGB + 100
+Dark   = RGB - 50
+
+Red    = Red   + 150
+Green  = Green + 150
+Blue   = Blue  + 150
+
+
+ */
+public class MainActivity extends AppCompatActivity {
+
     ImageView im;
 
     private Bitmap bmp;
@@ -22,36 +51,24 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        b1 = (Button) findViewById(R.id.button);
-        b2 = (Button) findViewById(R.id.button2);
-        b3 = (Button) findViewById(R.id.button3);
         im = (ImageView) findViewById(R.id.imageView);
 
         BitmapDrawable abmp = (BitmapDrawable) im.getDrawable();
         bmp = abmp.getBitmap();
     }
 
-
-    /*
-
-    123456789012
-    123456789012
-
-    112233445566
-    112233445566
-
-    111222333444
-    111222333444
-    111222333444
-
-     */
-
-    private int calculateAvg(int i, int j, int pixelSize) {
+    private int calculateAvgGreyColor(int i, int j, int pixelSize) {
         int p = bmp.getPixel(i, j);
         int a = Color.alpha(p);
-        int r = Color.red(p);
-        int g = Color.green(p);
-        int b = Color.blue(p);
+
+
+        int r = (Color.red(p) + Color.green(p) + Color.blue(p)) / 3;
+        int g = r;
+        int b = r;
+
+//        int r = Color.red(p);
+//        int g = Color.green(p);
+//        int b = Color.blue(p);
 
         return Color.argb(a, r, g, b);
 /*
@@ -89,19 +106,20 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void pixelate(View view) {
-        operation = Bitmap.createBitmap(bmp.getWidth(),bmp.getHeight(), bmp.getConfig());
+        operation = Bitmap.createBitmap(bmp.getWidth(), bmp.getHeight(), bmp.getConfig());
 
         int pixelSize = 30;
         for (int i = 0; i < bmp.getWidth(); i = i + pixelSize) {
             for (int j = 0; j < bmp.getHeight(); j = j + pixelSize) {
 
-                int avg = calculateAvg(i, j, pixelSize);
+                int avg = calculateAvgGreyColor(i, j, pixelSize);
 
                 // apply the average color
                 for (int pi = 0; pi < pixelSize; pi++) {
                     for (int pj = 0; pj < pixelSize; pj++) {
-                        if (i + pi < bmp.getWidth() &&  j + pj < bmp.getHeight())
+                        if (i + pi < bmp.getWidth() &&  j + pj < bmp.getHeight()) {
                             operation.setPixel(i + pi, j + pj, avg);
+                        }
                     }
                 }
             }
@@ -113,154 +131,22 @@ public class MainActivity extends ActionBarActivity {
         im.setImageBitmap(bmp);
     }
 
-    public void pixelate2(View view) {
-        operation = Bitmap.createBitmap(bmp.getWidth(),bmp.getHeight(), bmp.getConfig());
-        double red = 0.33;
-        double green = 0.59;
-        double blue = 0.11;
-
-        for (int i = 0; i < bmp.getWidth(); i++) {
-            for (int j = 0; j < bmp.getHeight(); j++) {
-                int p = bmp.getPixel(i, j);
-                int r = Color.red(p);
-                int g = Color.green(p);
-                int b = Color.blue(p);
-
-                if (i == j) {
-                    r = 0;
-                    g = g + 150;
-                    b = 0;
-                }
-                operation.setPixel(i, j, Color.argb(Color.alpha(p), r, g, b));
-            }
-        }
-        im.setImageBitmap(operation);
-    }
-
     public void gray(View view) {
-        operation = Bitmap.createBitmap(bmp.getWidth(),bmp.getHeight(), bmp.getConfig());
-        double red = 0.33;
-        double green = 0.59;
-        double blue = 0.11;
+        operation = Bitmap.createBitmap(bmp.getWidth(), bmp.getHeight(), bmp.getConfig());
 
         for (int i = 0; i < bmp.getWidth(); i++) {
             for (int j = 0; j < bmp.getHeight(); j++) {
                 int p = bmp.getPixel(i, j);
-                int r = Color.red(p);
-                int g = Color.green(p);
-                int b = Color.blue(p);
 
-                r = (int) red * r;
-                g = (int) green * g;
-                b = (int) blue * b;
+                int r = (Color.red(p) + Color.green(p) + Color.blue(p)) / 3;
+                int g = r;
+                int b = r;
+
                 operation.setPixel(i, j, Color.argb(Color.alpha(p), r, g, b));
+
             }
         }
         im.setImageBitmap(operation);
     }
 
-    public void bright(View view){
-        operation= Bitmap.createBitmap(bmp.getWidth(), bmp.getHeight(),bmp.getConfig());
-
-        for(int i=0; i<bmp.getWidth(); i++){
-            for(int j=0; j<bmp.getHeight(); j++){
-                int p = bmp.getPixel(i, j);
-                int r = Color.red(p);
-                int g = Color.green(p);
-                int b = Color.blue(p);
-                int alpha = Color.alpha(p);
-
-                r = 100  +  r;
-                g = 100  + g;
-                b = 100  + b;
-                alpha = 100 + alpha;
-                operation.setPixel(i, j, Color.argb(alpha, r, g, b));
-            }
-        }
-        im.setImageBitmap(operation);
-    }
-
-    public void dark(View view){
-        operation= Bitmap.createBitmap(bmp.getWidth(),bmp.getHeight(),bmp.getConfig());
-
-        for(int i=0; i<bmp.getWidth(); i++){
-            for(int j=0; j<bmp.getHeight(); j++){
-                int p = bmp.getPixel(i, j);
-                int r = Color.red(p);
-                int g = Color.green(p);
-                int b = Color.blue(p);
-                int alpha = Color.alpha(p);
-
-                r =  r - 50;
-                g =  g - 50;
-                b =  b - 50;
-                alpha = alpha -50;
-                operation.setPixel(i, j, Color.argb(Color.alpha(p), r, g, b));
-            }
-        }
-        im.setImageBitmap(operation);
-    }
-
-    public void gama(View view) {
-        operation = Bitmap.createBitmap(bmp.getWidth(),bmp.getHeight(),bmp.getConfig());
-
-        for(int i=0; i<bmp.getWidth(); i++){
-            for(int j=0; j<bmp.getHeight(); j++){
-                int p = bmp.getPixel(i, j);
-                int r = Color.red(p);
-                int g = Color.green(p);
-                int b = Color.blue(p);
-                int alpha = Color.alpha(p);
-
-                r =  r + 150;
-                g =  0;
-                b =  0;
-                alpha = 0;
-                operation.setPixel(i, j, Color.argb(Color.alpha(p), r, g, b));
-            }
-        }
-        im.setImageBitmap(operation);
-    }
-
-    public void green(View view){
-        operation = Bitmap.createBitmap(bmp.getWidth(),bmp.getHeight(), bmp.getConfig());
-
-        for(int i=0; i<bmp.getWidth(); i++){
-            for(int j=0; j<bmp.getHeight(); j++){
-                int p = bmp.getPixel(i, j);
-                int r = Color.red(p);
-                int g = Color.green(p);
-                int b = Color.blue(p);
-                int alpha = Color.alpha(p);
-
-                r =  0;
-                g =  g+150;
-                b =  0;
-                alpha = 0;
-                operation.setPixel(i, j, Color.argb(Color.alpha(p), r, g, b));
-            }
-        }
-        im.setImageBitmap(operation);
-    }
-
-    public void blue(View view){
-        operation = Bitmap.createBitmap(bmp.getWidth(),bmp.getHeight(), bmp.getConfig());
-
-        for(int i=0; i<bmp.getWidth(); i++){
-            for(int j=0; j<bmp.getHeight(); j++){
-                int p = bmp.getPixel(i, j);
-                int r = Color.red(p);
-                int g = Color.green(p);
-                int b = Color.blue(p);
-                int alpha = Color.alpha(p);
-
-                r =  0;
-                g =  0;
-                b =  b+150;
-                alpha = 0;
-                operation.setPixel(i, j, Color.argb(Color.alpha(p), r, g, b));
-            }
-        }
-        im.setImageBitmap(operation);
-    }
 }
